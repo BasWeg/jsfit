@@ -70,6 +70,8 @@ function encodeTypedData(data, fDef, fields) {
                 case 'uint16z':
                 case 'uint32z':
                 case 'uint64z':
+                case 'float32':
+                case 'float64':
                     return fDef.attrs.scale ? (x - fDef.attrs.offset) * fDef.attrs.scale : x;
                 case 'string': {
                     const te = new TextEncoder();
@@ -136,6 +138,8 @@ function decodeTypedData(data, fDef, fields) {
                 case 'uint16z':
                 case 'uint32z':
                 case 'uint64z':
+                case 'float32':
+                case 'float64':
                     return fDef.attrs.scale ? x / fDef.attrs.scale + fDef.attrs.offset : x;
                 case 'string': {
                     const td = new TextDecoder();
@@ -307,7 +311,8 @@ function readDefinitionMessage(dataView, recordHeader, localMessageType, definit
         if (!attrs) {
             attrs = {
                 field: `UNDOCUMENTED[${fDefNum}]`,
-                type: baseType.name
+                type: baseType.name,
+                undocumented: true,
             };
             console.warn(`Undocumented field: (${baseType.name}) ${message && message.name}[${fDefNum}]`);
         }
@@ -384,7 +389,7 @@ function readDataMessage(dataView, recordHeader, localMessageType, definitions, 
     }
     return {
         type: 'data',
-        name: message.name,
+        name: message ? message.name : undefined,
         size,
         mDef,
         fields,
